@@ -81,19 +81,14 @@ def augmentAruco(bbox,id, img,imgAug, drawId=True):
     return imgOut
     
 def generate_frames():
-    # cap = cv2.VideoCapture(0)
-    # while not cap.isOpened():
-    #     cap = cv2.VideoCapture(0)
-    #     cv2.waitKey(1000)
-    #     print("Wait for the camera to start")
     augDics = loadAugImages("Markers")
 
     while True:
-        # Receive image data from the client
-        content = request.get_json(silent=True)
-        if content and 'image_data' in content:
-            image_data = content['image_data']
-            img_data = np.array(image_data, dtype=np.uint8)
+        # Receive image data from the client as a query parameter
+        image_data = request.args.get('image_data', None)
+
+        if image_data:
+            img_data = np.array(eval(image_data), dtype=np.uint8)
             img = img_data.reshape((480, 640, 4))  # Assuming 4 channels (RGBA)
 
             arucoFound = findArucoMarkers(img)
