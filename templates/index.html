@@ -29,14 +29,14 @@
 
             function capture() {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const dataUrl = canvas.toDataURL('image/jpeg');
-
-                const formData = new FormData();
-                formData.append('image', dataUrl);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
                 fetch('/video_feed', {
                     method: 'POST',
-                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image_data: Array.from(imageData) }),
                 })
                 .then(response => response.blob())
                 .then(blob => {
