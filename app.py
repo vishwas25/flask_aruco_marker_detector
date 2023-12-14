@@ -1,8 +1,8 @@
 from flask import Flask, render_template, Response
-import cv2 as cv2
+import cv2
 import cv2.aruco as aruco
 import numpy as np
-import os as os
+import os
 
 app = Flask(__name__)
 
@@ -75,7 +75,7 @@ def augmentAruco(bbox,id, img,imgAug, drawId=True):
     imgOut = img + imgOut
 
     if drawId:
-        cv2.putText(imgOut,str(id), tl, cv2.FONT_HERSHEY_PLAIN,2,(255,0,255),2)
+        cv2.putText(imgOut,str(id), tl, cv2.FONT_HERSHEY_PLAIN,2,(0,255,255),2)
 
     return imgOut
     
