@@ -7,6 +7,39 @@
 </head>
 <body>
     <h1>Aruco Marker Detector</h1>
-    <img src="{{ url_for('video_feed') }}" width="640" height="480" />
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    video.onloadedmetadata = (e) => {
+                        video.play();
+                    };
+                })
+                .catch((err) => {
+                    console.error('Error accessing camera:', err);
+                });
+
+            function capture() {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                fetch('/video_feed')
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        video.src = url;
+                    });
+                requestAnimationFrame(capture);
+            }
+
+            requestAnimationFrame(capture);
+        });
+    </script>
 </body>
 </html>
+
