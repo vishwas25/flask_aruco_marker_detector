@@ -80,37 +80,43 @@ def augmentAruco(bbox,id, img,imgAug, drawId=True):
     return imgOut
     
 def generate_frames():
-    cap = cv2.VideoCapture(0)
-    while not cap.isOpened():
-        cap = cv2.VideoCapture(0)
-        cv2.waitKey(1000)
-        print("Wait for the camera to start")
+    # cap = cv2.VideoCapture(0)
+    # while not cap.isOpened():
+    #     cap = cv2.VideoCapture(0)
+    #     cv2.waitKey(1000)
+    #     print("Wait for the camera to start")
     augDics = loadAugImages("Markers")
     while True:
-        success, img = cap.read()
-        arucoFound = findArucoMarkers(img)
+        # Receive image data from the client
+        content = request.get_json(silent=True)
+        if content:
+            img_data = content.get('image')
+            img = cv2.imdecode(np.frombuffer(base64.b64decode(img_data.split(',')[1]), np.uint8), cv2.IMREAD_COLOR)
+        
+            arucoFound = findArucoMarkers(img)
 
-        if len(arucoFound[0]) != 0:
-            for bbox, id in zip(arucoFound[0], arucoFound[1]):
-                if int(id) in augDics.keys():
-                    img = augmentAruco(bbox, id, img, augDics[int(id)])
+            if len(arucoFound[0]) != 0:
+                for bbox, id in zip(arucoFound[0], arucoFound[1]):
+                    if int(id) in augDics.keys():
+                        img = augmentAruco(bbox, id, img, augDics[int(id)])
 
-        ret, frame = cv2.imencode('.jpg', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        data = frame.tobytes()
+            ret, frame = cv2.imencode('.jpg', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            data = frame.tobytes()
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + data + b'\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + data + b'\r\n')
+
+        else:
+            time.sleep(0.1)
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
-@app.route('/video_feed')
+@app.route('/video_feed', methods=['POST'])
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 
 
 if __name__ == "__main__":
