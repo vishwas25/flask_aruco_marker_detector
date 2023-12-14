@@ -28,23 +28,17 @@
                 });
 
             function capture() {
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-                fetch('/video_feed', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ image_data: Array.from(imageData) }),
-                })
-                .then(response => response.blob())
-                .then(blob => {
-                    const url = URL.createObjectURL(blob);
-                    video.src = url;
-                    requestAnimationFrame(capture);
-                });
-            }
+    fetch('/video_feed?image_data=' + encodeURIComponent(JSON.stringify(Array.from(imageData))))
+        .then(response => response.blob())
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            video.src = url;
+            requestAnimationFrame(capture);
+        });
+}
         });
     </script>
 </body>
