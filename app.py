@@ -81,6 +81,10 @@ def augmentAruco(bbox,id, img,imgAug, drawId=True):
     
 def generate_frames():
     cap = cv2.VideoCapture(0)
+    while not cap.isOpened():
+        cap = cv2.VideoCapture(0)
+        cv2.waitKey(1000)
+        print("Wait for the camera to start")
     augDics = loadAugImages("Markers")
     while True:
         success, img = cap.read()
