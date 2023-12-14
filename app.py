@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, jsonify
 import cv2
 import cv2.aruco as aruco
 import numpy as np
@@ -89,10 +89,13 @@ def generate_frames():
     augDics = loadAugImages("Markers")
 
     while True:
-        image_data = request.form.get('image')
-        if image_data:
-            img = cv2.imdecode(np.frombuffer(base64.b64decode(image_data.split(',')[1]), np.uint8), cv2.IMREAD_COLOR)
-        
+        # Receive image data from the client
+        content = request.get_json(silent=True)
+        if content and 'image_data' in content:
+            image_data = content['image_data']
+            img_data = np.array(image_data, dtype=np.uint8)
+            img = img_data.reshape((480, 640, 4))  # Assuming 4 channels (RGBA)
+
             arucoFound = findArucoMarkers(img)
 
             if len(arucoFound[0]) != 0:
