@@ -87,12 +87,11 @@ def generate_frames():
     #     cv2.waitKey(1000)
     #     print("Wait for the camera to start")
     augDics = loadAugImages("Markers")
+
     while True:
-        # Receive image data from the client
-        content = request.get_json(silent=True)
-        if content:
-            img_data = content.get('image')
-            img = cv2.imdecode(np.frombuffer(base64.b64decode(img_data.split(',')[1]), np.uint8), cv2.IMREAD_COLOR)
+        image_data = request.form.get('image')
+        if image_data:
+            img = cv2.imdecode(np.frombuffer(base64.b64decode(image_data.split(',')[1]), np.uint8), cv2.IMREAD_COLOR)
         
             arucoFound = findArucoMarkers(img)
 
