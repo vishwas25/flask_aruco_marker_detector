@@ -20,6 +20,7 @@
                     video.srcObject = stream;
                     video.onloadedmetadata = (e) => {
                         video.play();
+                        capture();
                     };
                 })
                 .catch((err) => {
@@ -28,18 +29,23 @@
 
             function capture() {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                fetch('/video_feed')
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const url = URL.createObjectURL(blob);
-                        video.src = url;
-                    });
-                requestAnimationFrame(capture);
-            }
+                const dataUrl = canvas.toDataURL('image/jpeg');
 
-            requestAnimationFrame(capture);
+                fetch('/video_feed', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: dataUrl }),
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    video.src = url;
+                    requestAnimationFrame(capture);
+                });
+            }
         });
     </script>
 </body>
 </html>
-
