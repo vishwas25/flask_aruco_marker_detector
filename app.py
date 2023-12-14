@@ -1,8 +1,9 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 import cv2
 import cv2.aruco as aruco
 import numpy as np
 import os
+import time
 
 app = Flask(__name__)
 
